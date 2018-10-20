@@ -1,2 +1,2 @@
 # rDAF
-R Data Assimilation framework
+R data assimilation framework

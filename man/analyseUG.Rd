@@ -38,14 +38,26 @@ retdy = FALSE, mpi = FALSE, analysis_scn = "a0", theta = NULL, lite=TRUE)
   \item{lite}{LOGICAL, only TRUE in this version}
 }
 \details{
-  
+A detailed documentation of the formal arguent to this function is under
+preparation. Specifically, this involves \code{gauDA}, \code{prm}, \code{aug}
+and \code{ana} lists. Please, ask to the author/maintained to blame for
+this and for documentation requests while this is under preparation.
+
+\code}{analyseUG} conducts the preparation of the matrices needed for
+the assimilation. The actual assimilation is conducted by the function
+\code{assimilate}, which includes Euclidean based localization and
+localization based on spatial networks, via the use of the SpatialGraph
+package, as well as MPI parallelization.
+
 For localization based on \code{SpatialGraph} objects, it is assumed that the
 input \code{SpatialGraph} is stored as \code{file.path(dsn,prm$sgf)} and
 precalculated along-network distances for nodes in the
 \code{SpatialGraph} are stored in \code{file.path(dsn,prm$gridSGf)}.
 
-However, for the current version, only code{assimilateLite} is
-available, with no localisation or MPI parallelization available
+The function \code{assimilate} is planned to be publicly released along with the detailed package
+documentation. In the interim time, the version \code{assimilateLite},
+which conducts global assimilation via the EnKF or the ETKF, serves for
+the purpose of package testing. 
 }
 \value{
 A LIST with the components
@@ -57,4 +69,4 @@ A LIST with the components
 Javier Garcia-Pintado
 }
 \keyword{data assimilation}% use one of  RShowDoc("KEYWORDS")
-\keyword{spatial}% __ONLY ONE__ keyword per line
+\keyword{spatial}

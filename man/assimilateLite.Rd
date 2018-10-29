@@ -12,8 +12,8 @@ assimilateLite(prm, A, HA, dy, R, debugmode, Kfname)
   \item{prm}{LIST, assimilation parameters}
   \item{A}{REAL, [n,m], 'dgCMatrix' or 'dgeMatrix', perturbation matrix,
   where \code{n}: augmented state vector length, and \code{m}: ensemble members}
-  \item{HA}{REAL, [p,m], perturbations mapped into the dual of the pbservation
-  space, where \code{p}: number of observations}
+  \item{HA}{REAL, [p,m], perturbations mapped into the dual of the observation
+  space, where \code{p} is the number of observations}
   \item{dy}{REAL, [p], innovation vector}
   \item{R}{REAL, [p,p], 'ddiMatrix', 'dsyMatrix', or 'dtCMatrix': observation error covariance}
   \item{debugmode}{LOGICAL, whether to activate verbose output}

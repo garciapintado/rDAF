@@ -1,0 +1,13 @@
+exportPattern("^[[:alpha:]]+")
+
+import(
+  Matrix,
+  tseries
+)
+
+importFrom('expm', 'sqrtm')
+importFrom("methods", "as")
+importFrom("SpatialGraph", "pointsToLines", "pointOnLine")
+importFrom("splancs", "n2dist")
+importFrom("stats", "rnorm", "sd", "var")
+

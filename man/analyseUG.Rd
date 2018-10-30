@@ -11,17 +11,17 @@
 }
 \usage{
 analyseUG(G = NULL, gLON = NULL, gLAT = NULL, fit, prm, X, yls = NULL,
-gauDA = NULL, gauTS = NULL, aug = NULL, ana = NULL, dsn = "", debugmode = TRUE,
+gauDA = NULL, gauTS = NULL, aug = NULL, ana = NULL, dsn = ".", debugmode = TRUE,
 retdy = FALSE, mpi = FALSE, analysis_scn = "a0", theta = NULL, lite=TRUE)
 }
 \arguments{
-  \item{G}{OPT, LIST, grid metadata with a structure similar to \code{meta6}
-    objects in package \code{spgrass6}} 
-  \item{gLON}{OPT, LIST,    Geographical coordinates - unstructured grids [nx,ny] 'matrix' }
-  \item{gLAT}{OPT, LIST,    Geographical coordinates - unstructured grids [nx,ny] 'matrix' }
+  \item{G}{OPT, LIST, grid metadata for structured grids with a
+    format as \code{gmeta6} objects in package spgrass6} 
+  \item{gLON}{OPT, LIST, geographical coordinates - unstructured grids [nx,ny] 'matrix' }
+  \item{gLAT}{OPT, LIST, geographical coordinates - unstructured grids [nx,ny] 'matrix' }
   \item{fit}{INTEGER, forecast time index for saved output}
-  \item{prm}{LIST,    DA-specific data}
-  \item{X}{LIST,    state vector, structured as X[[xKIND]][[timelab]][[im]]}
+  \item{prm}{LIST, global assimilation parameters}
+  \item{X}{LIST, state vector, structured as X[[xKIND]][[timelab]][[im]]}
   \item{yls}{OPT, LIST,    observation list, structured as yls[[yKIND]][[yTYPE]]$s lists.}
   \item{gauDA}{OPT, LIST,    y <-> HE matches, to include observations by state-vector augmentation. Augments x and y}
   \item{gauTS}{OPT, LIST, as gauDA lists, without the $y slot. Augments x, and can be used to obtain a smooth estimate (ETKS) at specific locations/variables in the domain. }
@@ -38,10 +38,10 @@ retdy = FALSE, mpi = FALSE, analysis_scn = "a0", theta = NULL, lite=TRUE)
   \item{lite}{LOGICAL, only TRUE in this version}
 }
 \details{
-A detailed documentation of the formal arguent to this function is under
-preparation. Specifically, this involves \code{gauDA}, \code{prm}, \code{aug}
-and \code{ana} lists. Please, ask to the author/maintained to blame for
-this and for documentation requests while this is under preparation.
+A detailed documentation of the arguments to this function is under
+preparation as a vignette. Specifically, this involves \code{gauDA},
+\code{prm}, \code{aug} and \code{ana} lists. Please, ask the
+author/maintainer for documentation requests in the meantime.
 
 \code}{analyseUG} conducts the preparation of the matrices needed for
 the assimilation. The actual assimilation is conducted by the function
@@ -54,10 +54,12 @@ input \code{SpatialGraph} is stored as \code{file.path(dsn,prm$sgf)} and
 precalculated along-network distances for nodes in the
 \code{SpatialGraph} are stored in \code{file.path(dsn,prm$gridSGf)}.
 
-The function \code{assimilate} is planned to be publicly released along with the detailed package
-documentation. In the interim time, the version \code{assimilateLite},
-which conducts global assimilation via the EnKF or the ETKF, serves for
-the purpose of package testing. 
+The function \code{assimilate} is planned to be publicly released along
+with the vignette documentation. In the interim time, the version
+\code{assimilateLite}, which conducts global assimilation via the EnKF
+or the ETKF, serves for the purpose of package
+testing. \code}{analyseUG} also includes the Finite Difference
+Sensitivity (FDS) smoothers described in García-Pintado and Paul (2018).
 }
 \value{
 A LIST with the components
@@ -67,6 +69,11 @@ A LIST with the components
 }
 \author{
 Javier Garcia-Pintado
+}
+\references{
+García-Pintado J. and Paul, A., 2018. Evaluation of iterative Kalman
+smoother schemes for multi-decadal past climate analysis with
+comprehensive Earth system models. Geoscientific Model Development. 
 }
 \keyword{data assimilation}% use one of  RShowDoc("KEYWORDS")
 \keyword{spatial}

@@ -1,5 +1,5 @@
 analyseUG <- function(G=NULL, gLON=NULL, gLAT=NULL, fit, prm, X, yls=NULL, gauDA=NULL, gauTS=NULL, aug=NULL, ana=NULL,
-                      dsn='', debugmode=TRUE, retdy=FALSE, mpi=FALSE, analysis_scn='a0', theta=NULL, lite=TRUE) {
+                      dsn='.', debugmode=TRUE, retdy=FALSE, mpi=FALSE, analysis_scn='a0', theta=NULL, lite=TRUE) {
 
   # ensemble contructor as input to assimilation - analyseUG stands for unstructured grids
   #

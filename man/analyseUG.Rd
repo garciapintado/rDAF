@@ -27,7 +27,7 @@ retdy = FALSE, mpi = FALSE, analysis_scn = "a0", theta = NULL, lite=TRUE)
   \item{gauTS}{OPT, LIST, as gauDA lists, without the $y slot. Augments x, and can be used to obtain a smooth estimate (ETKS) at specific locations/variables in the domain. }
   \item{aug}{OPT, LIST,    augmentation blocks (e.g.; physical parameters) }
   \item{ana}{LIST,    analysis parameter for each variable type}
-  \item{dsn}{CHARACTER != '', output files are stored in the path $dsn/results}
+  \item{dsn}{CHARACTER, output files are stored in the path $dsn/results}
   \item{debugmode}{OPT, LOGICAL, TRUE}
   \item{retdy}{OPT, LOGICAL, default FALSE. TRUE for no assimilation, and instead return the innovation vector}
   \item{mpi}{OPT, LOGICAL, (forced to FALSE in rDAFLite) whether to parallelize the assimilation via MPI}
@@ -43,7 +43,7 @@ preparation as a vignette. Specifically, this involves \code{gauDA},
 \code{prm}, \code{aug} and \code{ana} lists. Please, ask the
 author/maintainer for documentation requests in the meantime.
 
-\code}{analyseUG} conducts the preparation of the matrices needed for
+\code{analyseUG} conducts the preparation of the matrices needed for
 the assimilation. The actual assimilation is conducted by the function
 \code{assimilate}, which includes Euclidean based localization and
 localization based on spatial networks, via the use of the SpatialGraph
@@ -58,8 +58,8 @@ The function \code{assimilate} is planned to be publicly released along
 with the vignette documentation. In the interim time, the version
 \code{assimilateLite}, which conducts global assimilation via the EnKF
 or the ETKF, serves for the purpose of package
-testing. \code}{analyseUG} also includes the Finite Difference
-Sensitivity (FDS) smoothers described in García-Pintado and Paul (2018).
+testing. \code{analyseUG} also includes the Finite Difference
+Sensitivity (FDS) smoothers described in Garcia-Pintado and Paul (2018).
 }
 \value{
 A LIST with the components
@@ -71,9 +71,10 @@ A LIST with the components
 Javier Garcia-Pintado
 }
 \references{
-García-Pintado J. and Paul, A., 2018. Evaluation of iterative Kalman
+Garcia-Pintado J. and Paul, A., 2018. Evaluation of iterative Kalman
 smoother schemes for multi-decadal past climate analysis with
 comprehensive Earth system models. Geoscientific Model Development. 
 }
-\keyword{data assimilation}% use one of  RShowDoc("KEYWORDS")
+\keyword{data assimilation}
+\keyword{optimization}
 \keyword{spatial}

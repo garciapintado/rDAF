@@ -2,12 +2,14 @@ exportPattern("^[[:alpha:]]+")
 
 import(
   Matrix,
+  truncnorm,
   tseries
 )
 
-importFrom('expm', 'sqrtm')
-importFrom("methods", "as")
+importFrom("expm",      "sqrtm")
+importFrom("MASS",      "mvrnorm")
+importFrom("methods",   "as")
 importFrom("SpatialGraph", "pointsToLines", "pointOnLine")
-importFrom("splancs", "n2dist")
-importFrom("stats", "rnorm", "sd", "var")
+importFrom("splancs",   "n2dist")
+importFrom("stats",     "coef", "lm", "rnorm", "runif", "sd", "var")
 

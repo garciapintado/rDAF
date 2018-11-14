@@ -13,11 +13,11 @@
 The DESCRIPTION file:
 \packageDESCRIPTION{rDAF}
 \packageIndices{rDAF}
-A software for data assimilation based on R. Localization routines are
-under development. In the current (lite) version, the organization of the
-matrices needed to conduct the assimilation is given, but only
-assimilateLite() is provided as workhorse assimilation function, which
-does not include any localization, inflation, rotation, or MPI parallelization.
+A software for data assimilation based on R.
+The current version only provides the core function assimilateLite().
+A version including localization, inflation, rotation, and MPI
+parallelization is under testing and being documented. Please contact
+the author for information requests.
 }
 \author{
 \packageAuthor{rDAF}

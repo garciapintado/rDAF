@@ -1,0 +1,295 @@
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage[colorlinks=true,urlcolor=blue]{hyperref}
+
+% \VignetteIndexEntry{ rDAF: extended documentation for analyseUG}
+
+\usepackage{color}
+
+\usepackage{Sweave}
+\newcommand{\strong}[1]{{\normalfont\fontseries{b}\selectfont #1}}
+\let\pkg=\strong
+\newcommand{\code}[1]{{\tt #1}}
+\newcommand{\proglang}[1]{{\bf #1}}
+
+\title{ Description of S3 objects in the \pkg{rDAF} Package }
+\author{Javier Garcia-Pintado\footnote{MARUM -- Center for Marine Environmental Sciences,
+University of Bremen, Leobener Str. 8, D-28359 Bremen, Germany.
+\code{jgarciapintado@marum.de}}
+}
+\date{October 2018}
+
+\addtolength{\oddsidemargin}{-.875in}
+
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+\section{Introduction}
+
+The \pkg{rDAF} package provides functions to support assimilation prototyping within the  \proglang{R} environment.
+In the present version, only the core assimilation function {\tt assimilateLite} is provided, which conducts a global ensemble Kalman filter (EnKF).
+A more developed version of \pkg{rDAF}, whose documentation is under preparation, includes  the function {\tt assimilate}, as well as functions which it depends on. 
+This function includes additional features as localization and inflation, generation of autocorrelated noise fields to simulate model error, etc. Further, it is parallelised
+via the package \pkg{rmpi}, a wrapper to MPI libraries. In the interim time that the documentation for {\tt assimilate} and the related functions is under preparation, please contact the author for (undocumented) requests. 
+
+The function {\tt analyseUG} prepares the input for both {\tt assimilateLite} and {\tt assimilate}, and I have considered that the detailed 
+description of some structured input needed for {\tt analyseUG} would be better placed in this additional document than within the specific function documentation. 
+Thus, this document describes specific structured input that is needed by {\tt analyseUG}.
+
+Package \pkg{rDAF} is loaded by 
+<<>>= 
+library(rDAF)
+@
+
+
+\section{General description}
+
+Applications in \pkg{rDAF} need a number of input lists for pre-/postprocessing the assimilation and forecast steps. A main list organises most of the input. The name of this list is a user's election. Let's assume, we have an aplication for a general Model Forecast, and the name of this main list is \code{MF}.
+
+Within \code{MF}, there are a number of element with a fixed name, plus any other element that the user considers needed to support the specific application. Here we detail the elements with fixed names within this structure. The observation component is \code{MF[['y']]}. This is a list with a structure detailed below, basically organised for generic observation kinds [yKIND], which should match the name of some state variable provided by the model. Then, each yKIND may consider specific observation types [yTYPE], and then three different observation formats [yFMT], which are named as one of ['s','g','p'], each with a specific structure.
+
+Format 's', standing for spatially-distributed information (e.g. from satellites), refers to relatively spatially dense data. Data in this format are directly passed as formal argument to {\tt analyseUG}. The mapping from the state vector into the observation space, is obtained within {\tt analyseUG}, currently just by nearest neighbour assignation. {\tt analyseUG} stacks structured observations and state vector into matrices properly formatted to be used as input to {\tt assimilate}, but it is not designed in its current situation to embed forward operators, other that nearest neigbouring.
+ 
+The other formats ['g','p'] are to arrange so-called structures ({\tt y <-> HE} matchings) within the fix-named {\tt gauDA} list, externally to {\tt analyseUG}, where {\tt HE} is the mapping of the state vector into the observation space. That is, the model equivalent of the observations.
+The {\tt gauDA} object is then a list, where each element refers to a specific [yKIND], for which one of these observation formats exits. The {\tt gauDA} list is then passed as argument to {\tt analyseUG}, so that it will serve to augment both {\tt y} and {\tt HE} within {\tt analyseUG}, where corresponding {\tt H} blocks are generated as identity matrices. This implies that for observations without  1-to-1 corresponding state variables, a model-observation specific {\tt y <-> HE} structure is needed. The specific forward operator for this has to be created by the user for the specific application. As shown below, {\tt gauDA} is just structured into yKIND generic observations, with no sub-tree division for each specific yTYPE. Thus, the user would need to create a specific forward operator for each yTYPE within any yKIND.
+
+An example may help. Let it be satellite radiance observations. These could be organised, e.g., for a generic 'KIND\_radiance' yKIND. 
+Then, several yTYPE could be used for different satellites and instruments [e.g. Met-8\_SEVIRI,Met-9\_SEVIRI,Metop-A\_HIRS], and then a 'p' structure yFMT is needed for the observations from each satellite. Apart from the needed elements in \code{\dots[['p']]} indicated below, extra elements would be required as input to the specific forward operator (e.g.; channel, etc.), that would need to be designed for each of these yTYPE radiance observations. This would be a nonlinear operator first including the interpolation of the model fields to the observation location and time and on to fixed pressure levels for the radiative transfer (RT) computation, and second, including the key part of this operator, which would be the radiative transfer (RT) model to compute radiances for the required radiometer channels. But in the end, if one were to use {\tt analyseUG} to assimilate these radiances, these specific operations would then be applied to compute corresponding \code{y<->HE} structures. So \code{gauDA[['KIND\_radiance']][['y']]} would be a vector of all available radiance observations (for all channels, at all locations, at all times, for all yTYPEs [satellite/instruments]), and \code{gauDA[['KIND\_radiance']][['HE']]} would be the corresponding model first guess, or background. Thus, within {\tt analyseUG}, the corresponding generated H block would then just be again the identity matrix.
+
+Any variable transformation (forward \& inverse) for these \code{y <-> HE} structures has to be done externally to {\tt analyseUG}, as is any observation bias correction. Variable KINDs in x can be forward/inverse transformed within {\tt analyseUG} just if (a) there is no direct link to y ---i.e. non-observed variables---, or (b) a corresponding external transformation has been done on y, as not transformations are done on y within {\tt analyseUG}.
+
+An example of input to this package is given in the package \pkg{rdafCESM}.
+
+\section{Format of the observation list}
+The format of the observation list is:
+
+\begin{small}
+\begin{verbatim}
+y                         named LIST with yKIND class elements
+y[[yKIND]]                named LIST with yTYPE class elements
+y[[yKIND]][[yTYPE]]       named LIST with yFMT class elements in 'g','p','s'
+
+  "    $g                  names LIST, OPT
+       $g$data             named LIST, OPT          :: if NULL, nothing to assimilate
+  "    $g$data[[gau1]]
+                      $irts      irts               :: irregularly sampled time series - time: POSIXct
+                      $z0  [1]   REAL               :: auxiliary information - minimum level for time series
+                      $pos [1,2] REAL               :: sensor location [east,north]
+                      $z   [1]   REAL               :: sensor vertical coordinate
+                      $r   [1]   REAL               :: scalar variance specific for this gauge
+              ...
+              [[gaun]]
+       $g$fname            [1]   CHARACTER,  OPT    :: input to readOb(). Not needed if hardcoded in readOb()
+       $g$nto              [1]   INTEGER            :: maximum number of observation overpasses to assimilate
+       $g$qc               [1]   CHARACTER          :: 'none' for no QC, 'gsta' for geostatistically obtained 
+                                                       correlation length and outlier detection
+       $g$r                [1]   REAL, OPT          :: scalar observation error variance
+       $g$twin             [1]   REAL               :: current assimilation time is defined as CF$timenow. 
+                                                       This is the maximum past time for assimilated observations
+       $g$use              [1]   LOGICAL            :: whether to assimilate these [[yTYPE]][[yFMT]] observations
+       $g$w                [1]   LOGICAL,  OPT      :: defaults to FALSE. Whether to use observation weights 
+                                                       [inverse multipliers of R]
+
+  "    $p                  named LIST, OPT          :: point-type observation format - sparse in time and space
+       $p$data             named LIST, OPT          :: if NULL, nothing to assimilate
+              $fract       [1]   LOGICAL            :: whether to allow for fractional assimilation
+              $name        [1] CHARACTER, OPT       :: informative, not used for assimilation
+              $pos         [p,2] REAL               :: observation locations [east,north]
+              $z           [p]   REAL               :: height coordenate for 3D variables
+              $r           [p]   REAL               :: observation error variance
+              $time        [p] POSIXct, OPT         :: POSIXct version of $timelab, not used by the assimilation
+              $timelab     [p] CHARACTER            :: if NOT NULL, specific for each observation, 
+                                                       and has priority over $p$time
+              $units       [1] CHARACTER, OPT       :: informative, not used for assimilation
+              $y           [p]   REAL               :: observation vector
+       $p$fname            [1]   CHARACTER,  OPT    :: input to readOb(). Not needed if known to readOb()
+       $p$nto              [1]   INTEGER            :: maximum number of observation overpasses to assimilate
+       $p$qc               [1]   CHARACTER          :: 'none' for no QC, 'gsta' for geostatistically obtained 
+                                                       correlation length an outlier detection
+       $p$r                [1]   REAL, OPT          :: scalar observation error variance
+       $p$twin             [1]   REAL               :: current assimilation time is defined as CF$timenow.
+                                                       This is the maximum past time for assimilated observations
+       $p$use              [1]   LOGICAL            :: whether to assimilate these [[yTYPE]][[yFMT]] observations
+       $p$w                [1]   LOGICAL,  OPT      :: defaults to FALSE. Whether to use observation weights 
+                                                       [inverse multipliers of R]
+
+       $s                  named LIST,          OPT :: satellite-type observation format,
+                                                       - sparse in time dense in space
+       $s$data             named LIST,          OPT :: if NULL, nothing to assimilate
+       $s$data$linmul      [1]   REAL,          OPT :: required if ana[[yTYPE]]$trf == 'linearScale'
+       $s$data$names       [nov] CHARACTER,     OPT :: self-descriptor of data data.frames names, 
+                                                       - each one matching ...$time, respectively
+       $s$data$res         [nov] REAL,          OPT :: satellite sample horizontal resolution,
+                                                        not used but potentially useful for representation errors
+       $s$data$sensor      [nov] CHARACTER,     OPT :: just as metadata purpose - name of satellite / sensor
+       $s$data$time        [nov] POSIXct,       OPT :: POSIXct version of $timelab, not used by the assimilation
+       $s$data$timelab     [nov] CHARACTER          :: time labels to match X
+       $s$data$units       [1]   CHARACTER,     OPT :: informative, not used for assimilation
+       $s$data$yfield      [1]   CHARACTER,     OPT :: if NOT NULL, observation slot - defaults to 'y'
+       $s$data[[.$s$data$timelab[1]]]               :: list with data for a specific overpass, 
+                                                       with the columns [elements]:
+                               $pos                 :: [p_op,2] horizontal coordinates
+                               $z                   :: [p_op]   vertical coordinates 
+                               $y                   :: [p_op] observation vector
+                               $inthin LOGICAL, OPT :: [p_op] not used in the assimilation, but for QC
+                               $qced   LOGICAL, OPT :: [p_op] if NOT NULL, indicates which specific observations 
+                                                              are to be assimilated
+                               $R      REAL, OPT    :: [p_op,p_op] if NOT NULL, has a preference over $r below
+                               $r      REAL, OPT    :: [p_op] if NOT NULL, has a preference over the scalar 
+                                                              ...$s$r for error variance input
+                               $w                   :: [p_op] REAL,    OPT :: required if ...$s$w==TRUE. 
+                                                              Observations weights [they should be <=1]
+       ...
+       $s$data[[.$s$data$timelab[[nov]]]                    "              "
+       $s$fname            [1]   CHARACTER,  OPT    :: input to readOb(). Not needed if known to readOb()
+       $s$nto              [1]   INTEGER            :: maximum number of observation overpasses to be 
+                                                       assimilated in one assimilation step
+       $s$qc               [1]   CHARACTER          :: 'none' for no QC, 'gsta' for geostatistically obtained 
+                                                       correlation lengths and outlier detection
+       $s$r                [1]   REAL, OPT          :: scalar observation error variance
+       $s$twin             [1]   REAL               :: current assimilation time is defined as CF$timenow. 
+                                                       This is the maximum past time to consider observations
+       $s$use              [1]   LOGICAL            :: whether to assimilate these [[yTYPE]][[yFMT]] observations
+       $s$w                [1]   LOGICAL,  OPT      :: defaults to FALSE. Whether to use observation weights 
+                                                       [inverse multipliers of R]
+\end{verbatim}
+\end{small}
+
+\section{Format of the gauDA object}
+Observations in [['p']], and [['g']] formats have to be mapped into a {\tt gauDA} list to be sent as formal argument to {\tt analyseUG}. 
+The gauDA format itself is as follows
+
+\begin{small}
+\begin{verbatim}
+gauDA                         named LIST with yKIND elements
+gauDA[[yKIND]]                named LIST with the following elements, where [p] refers to the 
+                              length of the specific yKIND observation
+       $yTYPE                   [p]   CHARACTER
+       $y                       [p]   REAL          :: observation vector - possibly forward transformed
+       $pos                     [p,2] REAL          :: observation [lon,lat] coordinates matrix
+       $z                       [p]   REAL          :: z-coordinates
+       $timelab                 [p]   CHARACTER     :: representation of timestamps - possibly 
+                                                       uniquely identifying time-averaged labels
+       $r       [var in old]    [p]   REAL          :: observation error variance
+       $R                       [p,p] REAL, OPT     :: observation error covariance. If not NULL, 
+                                                       has a preference over $r
+       $HE      [sim in old]    [p,m] REAL          :: model background in the observation space 
+                                                       [if y has a variable transformation, so does HE]
+       $Hx                      [p]   REAL, OPT     :: not used by the assimilation but convenient to have 
+                                                       it in the same structure for information purposes
+       $dy                      [p]   REAL, OPT     :: innovations [current loop]. Also for information purposes
+\end{verbatim}
+\end{small}
+\section{Format of the aug list for state vector augmentation}
+The \code{aug} object passed as formal argument to {\tt analyseUG} serve to estimate parameters or additional input by augmenting the state vector
+\begin{small}
+\begin{verbatim}
+aug                           named LIST with xKIND elements. That is, augmentation variable with no direct 
+                              link into observation [e.g. model parameters]
+aug[[xKIND]]                  being 'n' the length of the specific state-subvector,
+                              aug xKIND variable will be forward/inverse transformed within analyseUG() 
+                              if indicated by ana[[xKIND]]$trf
+       $E                     [n,m] REAL       :: ensemble of values
+       $pos                   [n,2] REAL       :: [east,north]
+       $timelab               [n]   CHARACTER  :: time labels
+       $z                     [n]   REAL       :: vertical coordinate
+\end{verbatim}
+\end{small}
+\section{Format of the X object}
+\code{X} is a list passed as formal argument to {\tt analyseUG}. This object contains the gridded variables to be analysed. 
+For historial and self-reference purpose, he, now deprecated, old format is included here. Naming the old object as \code{Els} to avoid confusion, This old format was
+\begin{small}
+\begin{verbatim}
+Els
+Els[[xKIND]]
+            $time                         [n-stacks] POSIXct
+            $stack                        [n-stack] LIST
+                  [[1]]                   [[ng,m]]  where ng=nlat*nlong is for regular grids
+                  ...nstack
+
+\end{verbatim}
+\end{small}
+This has now been substituted by the new input to {\tt analyseUG}:
+\begin{small}
+\begin{verbatim}
+X[[xKIND]]
+          $att                 LIST                  :: attributes, just as metadata information
+          $z                                         :: vector of vertical coordinates 
+                                                        [length(z) == number of layers (nz)]
+          $val                 [n-stack] named LIST, with the elements: 
+              [[timelab[1]]]   LIST [with length m]  :: each element in 1:m is an ensemble member as a 2D/3D array.
+                                                        The alternative format [nz*ng,m] matrix with 2D/3D 
+                                                        ensemble members with stacked layers in each column is 
+                                                        also digested by analyseUG() 
+              ...
+              [[timelab[n]]]
+\end{verbatim}
+\end{small}
+\section{The prm object for SpatialGraph objects}
+{\tt analyseUG} also requires a list named \code{prm}, which contain general assimilation parameters. This is documented in {\tt analyseUG}. More specifically, rDAF includes the possibility of using a spatially georeferenced network as support to conduct the localization. The network is considered an skeleton with respect to the gridded variables. Thus the diatance between any two spatial locations can be calculated as the sum of the distances of the two spatial locations and their respective projections (the closest point) in the network, plus the optimal network distance, between the projected locations. 
+
+The geographical network is based on the package \pkg{SpatialGraph}, which provides the \code{SpatialGraph-class} S4 
+objects to be used to conduct a network-based distance localization. When \code{prm[['loc\_distype']] == 'SG'}, along-network distances are used and \code{prm} has to include:
+\begin{small}
+\begin{verbatim}
+prm$sglst                     LIST, created within analyseUG, with information for SpatialGraph-based distance   
+prm$sglst$sg                         SpatialGraph, precalculated out of analyseUG
+            @e                      edges
+            @v                      vertices
+            @dist                   distance matrix among network nodes
+         $xposSG
+         $yposSG 
+
+\end{verbatim}
+\end{small}
+In addition, the object 
+\begin{small}
+\begin{verbatim}
+gposSG                       precalculated mapping of gridded coordinates into the SpatialGraph
+\end{verbatim}
+\end{small}
+has to be previously calculated to speed up the online calculations
+
+\section{Specific items for finite difference sensitivity Kalman smoothers}
+\begin{small}
+\begin{verbatim}
+theta :: OPT,                          LIST, used just for finite difference sensitivity Kalman smoother schemes
+      $b                                  [np] vector of background parameters
+      $d                                  [np] vector of parameter perturbations
+      $P                                  [np,np] background parameter error covariance matrix 
+\end{verbatim}
+\end{small}
+\section{Limitations and strategy for high-dimensional models}
+This software has been used with a a range of models, the biggest one being the Community Earth System Model (CESM). The strategy to conduct
+assimilation with CESM has been to analyse variable by variable by iteratively loading each variable of interest in the netCDF history files into the R workspace. Depending on the computer, one can also load layer by layer, or just the specific layers of interest for an analysis.
+
+Examples of use with \pkg{rDAF} and LETKF (requires {\tt assimilate}) are Garc\'ia-Pintado et al. (2013, 2015), and Waller et al. (2018).
+One example of ETKF and finite-difference Kalman smoothers (reproducible with {\tt assimilateLite}) with this software is Garc\'ia-Pintado and Paul (2018).
+
+\section*{References}
+\begin{description}
+\item Garcia-Pintado J, Paul A.
+Evaluation of Kalman smoother schemes for past climate analysis with
+comprehensive Earth System Models.
+\textit{Geoscientific Model Development} 2018.
+
+\item Waller JA, Garc\'ia-Pintado J, Mason DC, Dance SL, Nichols NK.
+Technical note: assessment of observation quality for data assimilation in flood models.
+\textit{Hydrology and Earth System Sciences} 2018; doi: 10.5194/hess-2018-43
+
+\item Garc\'ia-Pintado J, Mason DC, Dance SL, Cloke HL, Neal JC, Freer J, Bates PD.
+Satellite-supported flood forecasting in river networks: a real case
+study.
+\textit{Journal of Hydrology} 2015; 523:706--724.
+
+\item Garc\'ia-Pintado J, Neal JC, Mason DC, Dance SL, Bates PD.
+Scheduling satellite-based SAR acquisition for sequential assimilation of water level observations into flood modelling.
+\textit{J. Hydrol.\/} 2013; 495:252--266.
+
+\end{description}
+
+\end{document}
+

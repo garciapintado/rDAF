@@ -1,15 +1,20 @@
 exportPattern("^[[:alpha:]]+")
 
+import(Matrix, except=tail)
 import(
-  Matrix,
   truncnorm,
   tseries
 )
 
+importFrom("akima",     "interp","interpp")
 importFrom("expm",      "sqrtm")
 importFrom("MASS",      "mvrnorm")
 importFrom("methods",   "as")
 importFrom("SpatialGraph", "pointsToLines", "pointOnLine")
 importFrom("splancs",   "n2dist")
-importFrom("stats",     "coef", "lm", "rnorm", "runif", "sd", "var")
+importFrom("stats",      "approx", "coef", "lm", "qnorm", "quantile",
+           "rnorm", "runif", "sd", "shapiro.test", "var")
+importFrom("utils",     "installed.packages", "tail")
+
+
 

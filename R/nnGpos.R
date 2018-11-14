@@ -1,6 +1,6 @@
 nnGpos <- function(G, pos) {
 
-# G   :: geometa object
+# G   :: gmeta6 object
 # pos :: [x,y] coordinate matrix
 # return: vector indexes within G [byrow=TRUE; from upper-left corner], for each coordinate in pos
 

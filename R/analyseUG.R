@@ -96,7 +96,7 @@ analyseUG <- function(G=NULL, gLON=NULL, gLAT=NULL, fit, prm, X, yls=NULL, gauDA
     cbind(rep(G$xseq,G$rows),rep(G$ryseq,each=G$cols))}
 
   wSigma <- function(sigma, w) {
-    # weights a covariance keeping correlation
+    # inflates a covariance keeping correlation
     diag(sqrt(w)) %*% sigma %*%  diag(sqrt(w))   
   }
 
@@ -508,8 +508,7 @@ analyseUG <- function(G=NULL, gLON=NULL, gLAT=NULL, fit, prm, X, yls=NULL, gauDA
       return(dydf)
 
     if (!is.null(prm$sglst))
-     stop('analyseUG:: no graph-based localization in rDAFlite version')   
-     # prm$sglst$yposSG <- pointsToLines(ypos, prm$sglst$sg@e)
+     prm$sglst$yposSG <- pointsToLines(ypos, prm$sglst$sg@e)
   } else {
    if (retdy)
      return(NULL)

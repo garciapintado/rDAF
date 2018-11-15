@@ -23,6 +23,23 @@ blkdiag <- function(...) {
 	return(A)
 } # end function blkdiag
 
+deg2gms <- function(deg) {
+ # +++ purpose +++
+ # convert decimal degrees to degrees minutes and seconds
+ g <- trunc(deg)
+ minrest <- (deg - g) * 60
+ m <- trunc(minrest)
+ s <- (minrest - m) * 60
+ if (length(g) == 1){
+   ans <- c(g,m,s)
+   names(ans) <- c('g','m','s')
+ } else {
+   ans <- matrix(c(g,m,s),ncol=3)
+   colnames(ans) <- c('g','m','s')
+ }
+ return(ans)
+} # end function deg2gms
+
 hypot <- function(a,b){
   sqrt(a^2 + b^2)
 } # end function hypot

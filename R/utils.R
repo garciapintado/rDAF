@@ -40,6 +40,15 @@ deg2gms <- function(deg) {
  return(ans)
 } # end function deg2gms
 
+gms2deg <- function(gms) {
+ # +++ purpose +++
+ # convert degrees minutes and seconds to decimal degrees
+ if (length(gms) == 3)
+   gms <- matrix(gms,nrow=1)
+ ans <- gms[,1] + gms[,2]/60 + gms[,3]/3600
+ return(ans)
+} # end function gms2deg
+
 hypot <- function(a,b){
   sqrt(a^2 + b^2)
 } # end function hypot

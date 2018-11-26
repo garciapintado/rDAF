@@ -1,4 +1,4 @@
-interpEarth <- function(LON, LAT, z, xo, yo, retnum = TRUE) {
+interpEarth <- function(LON, LAT, z, xo, yo, output = 'grid', retnum = TRUE) {
   # irregular points onto regular grid around the Earth by use of akima interpolation
   # require(interp)
 
@@ -10,7 +10,9 @@ interpEarth <- function(LON, LAT, z, xo, yo, retnum = TRUE) {
     stop('interpEarth: input longitudes expand more than 360 degrees')
   if (diff(range(xo)) > 360)
     stop('interpEarth: output longitudes expand more than 360 degrees')
-
+  if (!(output %in% c('grid','points')))
+    stop('interpEarth: output must be grid or points')
+  
   # express input and output longitudes in [0,360]
   LON360 <- LON
   if (any(LON360 < 0))                                     # input in [-180,0)
@@ -36,8 +38,8 @@ interpEarth <- function(LON, LAT, z, xo, yo, retnum = TRUE) {
   LATaug <- c(LATaug,LAT[rdid])
   zaug   <- c(zaug,zaug[rdid])
 
-  fld <- interp::interp(LONaug, LATaug, zaug, xo=xo360, yo=yo)$z
-    if (retnum)                                                      # as numeric from ul corner and advancing by row=TRUE
-    fld <- as.numeric(fld[,ncol(fld):1])
-  return(fld)
+  zo <- interp::interp(LONaug, LATaug, zaug, xo=xo360, yo=yo, output=output)$z
+  if (output == grid && retnum)                            # write as numeric from ul corner and advancing by row=TRUE
+    zo <- as.numeric(zo[,ncol(zo):1])
+  return(zo)
 } # end function interpEarth()

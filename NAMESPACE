@@ -6,7 +6,7 @@ import(
   tseries
 )
 
-importFrom("akima",     "interp","interpp")
+importFrom("interp",    "interp")
 importFrom("expm",      "sqrtm")
 importFrom("MASS",      "mvrnorm")
 importFrom("methods",   "as")

@@ -39,7 +39,7 @@ interpEarth <- function(LON, LAT, z, xo, yo, output = 'grid', retnum = TRUE) {
   zaug   <- c(zaug,zaug[rdid])
 
   zo <- interp::interp(LONaug, LATaug, zaug, xo=xo360, yo=yo, output=output)$z
-  if (output == grid && retnum)                            # write as numeric from ul corner and advancing by row=TRUE
+  if (output == 'grid' && retnum)                            # write as numeric from ul corner and advancing by row=TRUE
     zo <- as.numeric(zo[,ncol(zo):1])
   return(zo)
 } # end function interpEarth()

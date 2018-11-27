@@ -29,8 +29,10 @@ University of Bremen, Leobener Str. 8, D-28359 Bremen, Germany.
 
 \section{Introduction}
 
-The \pkg{rDAF} package provides functions to support assimilation prototyping within the  \proglang{R} environment.
+The \pkg{rDAF} package provides functions to support ensemble assimilation prototyping within the  \proglang{R} environment.
 In the present version, only the core assimilation function {\tt assimilateLite} is provided, which conducts a global ensemble Kalman filter (EnKF).
+The specific scheme is an unbiased Ensemble Tranform Kalman Filter (ETKF).
+
 A more developed version of \pkg{rDAF}, whose documentation is under preparation, includes  the function {\tt assimilate}, as well as functions which it depends on. 
 This function includes additional features as localization and inflation, generation of autocorrelated noise fields to simulate model error, etc. Further, it is parallelised
 via the package \pkg{rmpi}, a wrapper to MPI libraries. In the interim time that the documentation for {\tt assimilate} and the related functions is under preparation, please contact the author for (undocumented) requests. 

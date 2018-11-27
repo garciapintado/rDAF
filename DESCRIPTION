@@ -2,7 +2,7 @@ Package: rDAF
 Version: 1.0-0
 Type: Package
 Title: R Data Assimilation Framework
-Date: 2018-10-19
+Date: 2018-11-27
 Imports: expm, interp, MASS, Matrix, methods, SpatialGraph, 
          splancs, stats, truncnorm, tseries, utils
 Author: Javier Garcia-Pintado

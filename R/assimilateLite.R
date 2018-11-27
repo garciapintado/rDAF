@@ -44,17 +44,12 @@
 #                                      See eq(13) in Sakov_Oke2008a
 #                  The function returns $dx$, and $A^a$, according with
 #                  eqs. (3) and (4) in Sakov et al., 2010.
-# Revisions:
-#                 29.06.2011 JGP:
-#                   -- Added support to use of full measurement error covariance
-#                   matrix (R) for global filter. Previous versions just considered single
-#                   (scalar) variance.
-#
 ##
 ## This file is part of the free-software rDAFlite
 ## See LICENSE for details.
 
-assimilateLite <- function(prm, A, HA, dy, R, debugmode, Kfname) {
+assimilateLite <- function(prm, A, HA, dy, R, debugmode, Kfname,
+                           xpos = NULL, xllen = NULL, ypos = NULL, mpi = NULL, sglst = NULL) {
   # prm       : list with assimilation parameters
   # A         : [n,m] 'dgCMatrix' or 'dgeMatrix', n: state vector length, m: ensemble members
   # HA        : [p,m] REAL, where p is the number of observations
@@ -63,7 +58,24 @@ assimilateLite <- function(prm, A, HA, dy, R, debugmode, Kfname) {
   # R         : [p,p] 'ddiMatrix', 'dsyMatrix', or 'dtCMatrix': observation error covariance
   # debugmode : LOGICAL, to trigger output writing
   # Kfname    : CHARACTER, path/filename to write the Kalman gain, if debugmode=TRUE
-  
+
+  # arguments to provide compatibility with assimilate()  
+  if (!is.null(xpos))
+    cat('assimilateLite:: xpos forced to NULL\n')
+  if (!is.null(xllen))
+    cat('assimilateLite:: xllen forced to NULL\n')
+  if (!is.null(ypos))
+    cat('assimilateLite:: ypos forced to NULL\n')
+  if (!is.null(mpi))
+    cat('assimilateLite:: mpi forced to NULL\n')
+  if (!is.null(sglst))
+    cat('assimilateLite:: sglst forced to NULL\n')
+  xpos  <- NULL
+  xllen <- NULL
+  ypos  <- NULL
+  mpi   <- NULL
+  sglst <- NULL
+
   stopifnot(prm$method %in% c('EnKF','ETKF'))                         # just EnKF, ETKF defined by now
 
   n <- nrow(A)                                                          # includes any possible augmentation

@@ -5,7 +5,8 @@
  Main assimilation function called by \code{analyseUG}
 }
 \usage{
-assimilateLite(prm, A, HA, dy, R, debugmode, Kfname)
+assimilateLite(prm, A, HA, dy, R, debugmode, Kfname,
+               xpos = NULL, xllen = NULL, ypos = NULL, mpi = NULL, sglst = NULL)
 }
 
 \arguments{
@@ -18,10 +19,20 @@ assimilateLite(prm, A, HA, dy, R, debugmode, Kfname)
   \item{R}{REAL, [p,p], 'ddiMatrix', 'dsyMatrix', or 'dtCMatrix': observation error covariance}
   \item{debugmode}{LOGICAL, whether to activate verbose output}
   \item{Kfname}{ CHARACTER, filename, including path, of the output file
-  to write the Kalman gain to}
+    to write the Kalman gain to}
+  \item{xpos}{REAL, [n,2], augmented state geographical positions [0,0] for global variables}
+  \item{xllen}{REAL, [n], localisation length}
+  \item{ypos}{REAL, [p,2], observation coordinates}
+  \item{mpi}{LOGICAL}
+  \item{sglst}{LIST. If not NULL, SpatialGraph-based distance is used for localisation}
 }
 \details{
-This function would most commonly be called by \code{\link{analyseUG}}
+This function would most commonly be called by
+  \code{\link{analyseUG}}. The arguments \code{xpos}, \code{xllen},
+  \code{ypos}, \code{mpi}, and \code{sglst} are only proided for input
+  compatibility with \code{assimilate()}, which is under
+  development. These are oriented to conduct observation localization, and
+  are unused and set to NULL within this function. 
 }
 \value{
 A LIST with the components

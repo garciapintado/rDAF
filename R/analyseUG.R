@@ -4,7 +4,8 @@ analyseUG <- function(G=NULL, gLON=NULL, gLAT=NULL, fit, prm, X, yls=NULL, gauDA
   # ensemble contructor as input to assimilation - analyseUG stands for unstructured grids
   #
   #
-  # G            :: OPT, LIST,    gmeta6 class object      - structured grids. [$cells, $xseq (W-E longitudes), $ryseq (N-S latitudes), $cols (grid dimension: longitude), $rows (grid dimension: latitude)
+  # G            :: OPT, LIST,    gmeta6 class object      - structured grids. [$cells, $xseq (W-E longitudes),
+  #                               $ryseq (N-S latitudes), $cols (grid dimension: longitude), $rows (grid dimension: latitude)
   # gLON,gLAT    :: OPT, LIST,    Geographical coordinates - unstructured grids [nx,ny] 'matrix' 
   # fit          ::      INTEGER, forecast time index [for output data]
   # prm          ::      LIST,    DA-specific data
@@ -21,9 +22,10 @@ analyseUG <- function(G=NULL, gLON=NULL, gLAT=NULL, fit, prm, X, yls=NULL, gauDA
   # mpi          :: whether to parallel DA in assimilate()
   # analysis_scn :: CHARACTER - appended to background and analysis files 
   # theta        :: OPT, LIST - required for parameter space KF [prm$method]. List components: 
-  #                      $d [ntheta] vector of parameter perturbations - has to comply with X, so the ensemble for X components match first the background, then one column for each $d element
-  #                      $b [ntheta] vector of background parameter values
-  #                      $Pb [ntheta,ntheta] parameters error background covariance matrix
+  #                             $d  :: [ntheta] vector of parameter perturbations - has to comply with X, so the ensemble for X components
+  #                                    match first the background, then one column for each $d element
+  #                             $b  :: [ntheta] vector of background parameter values
+  #                             $Pb :: [ntheta,ntheta] parameters error background covariance matrix
   # lite         :: LOGICAL, wheter to use the lite version: no MPI, no localization, no inflation, no rotation for ensemble filters   
   # revisions:
   # 2016-01-16 JGP
@@ -35,14 +37,17 @@ analyseUG <- function(G=NULL, gLON=NULL, gLAT=NULL, fit, prm, X, yls=NULL, gauDA
   # This makes this function more standard at the cost of increasing memory requirements.
   #
   # Notes: either G, or [gLON,gLAT] input assumes a common grid for all gridded variables, which must match the given dimensions. 
-  #        State input via X[[vKIND]]$val[[im]], im=1,...m must then match the given metadata. That is a vector of length G$cells indicating coordinates
-  #        as 1st by nx [longitude, in general], starting from the grid ul corner.   
+  #        State input via X[[vKIND]]$val[[im]], im=1,...m must then match the given metadata.
+  #        That is a vector of length G$cells indicating coordinates as 1st by nx [longitude, in general],
+  #        starting from the grid ul corner.   
   #        Thus, for staggered grids, variables on each grid should be analysed independently
   # 2017-10-18
-  #   include pIKS,pMKS method. These are parameter-only estimations. Not an ensemble method in the sense that the covariances is explicit. 
-  #   The method uses finite differences though, which are provided as an ensemble matrix, as input estimates of 
-  #   the sensitivites of the observations to the model parameters, to construct a Kalman Filter analysis ony for the parameters
-
+  #   include pIKS, pMKS schemes. These are not an ensemble schemes, in the sense that covariances are explicit. 
+  #   The method uses finite differences though (or conditional sampling), which are provided as a list of ensemble matrices,
+  #   as input estimates of the sensitivites of the observations to the model inputs, to construct a Kalman update for the inputs
+  # 2018-11-25
+  #   Modifications to make it amenable to R-CRAN 
+    
   options(warn=2)
   if (lite)
     mpi <- FALSE
@@ -50,11 +55,10 @@ analyseUG <- function(G=NULL, gLON=NULL, gLAT=NULL, fit, prm, X, yls=NULL, gauDA
   if (!is.null(G) && !is.null(gLON))
     stop('analyseUG: use just either G [regular grids] or gLON,gLAT [irregular grids] for horizontal grid definition')
 
-  # browser()
   if (is.null(G))
-   structG <- FALSE                                                                                  # irregular grid - although it also may be used for regular grids
+   structG <- FALSE                                                             # irregular grid - although it also may be used for regular grids
   else
-   structG <- TRUE                                                                                   # structured regular grid
+   structG <- TRUE                                                              # structured regular grid
 
   if (!file.exists(file.path(dsn,'results')))
     dir.create(file.path(dsn,'results'), recursive=TRUE)
@@ -62,34 +66,34 @@ analyseUG <- function(G=NULL, gLON=NULL, gLAT=NULL, fit, prm, X, yls=NULL, gauDA
   if (prm$method %in%  c('pIKS','pMKS')) {
     if (is.null(theta))
       stop('analyseUG:: ---ERR: theta list not provided for parameter-space method---')
-    m <- length(theta$d)+1                                                     # extra member for the background in X
+    m <- length(theta$d)+1                                                      # extra member for the background in X
   } else 
-    m <- prm$m                                                                 # ensemble size
+    m <- prm$m                                                                  # ensemble size
   if (!is.null(G))
-    ng <- G$cells                                                              # cells in each horizontal grid
+    ng <- G$cells                                                               # cells in each horizontal grid
   else
     ng <- length(gLON)
 
-  x     <- NULL                                                                # [n]   - state vector
-  xpos  <- NULL                                                                # [n,2] - geographical positions - [NA,NA] for global
-  xz    <- NULL                                                                # [n]   - vertical position      - [NA] for global 
-  xKIND <- NULL                                                                # [n]   - variable KIND
-  xtime <- NULL                                                                # [n] CHAR, state variable timestamp
-  xgrd  <- NULL                                                                # [n] LOGICAL, TRUE for gridded data | FALSE for sparse in space
+  x     <- NULL                                                                 # [n]   - state vector
+  xpos  <- NULL                                                                 # [n,2] - geographical positions - [NA,NA] for global
+  xz    <- NULL                                                                 # [n]   - vertical position      - [NA] for global 
+  xKIND <- NULL                                                                 # [n]   - variable KIND
+  xtime <- NULL                                                                 # [n] CHAR, state variable timestamp
+  xgrd  <- NULL                                                                 # [n] LOGICAL, TRUE for gridded data | FALSE for sparse in space
 
-  p     <- 0                                                                   # [1]   - number of observations
-  y     <- NULL                                                                # [p]   - observation vector
-  ypos  <- NULL                                                                # [p,2] - geographical positions - [NA,NA] global obs
-  yz    <- NULL                                                                # [p]   - vertical positions     - [NA]   global obs
-  yKIND <- NULL                                                                # [p]   - variable KIND
-  yTYPE <- NULL                                                                # [p]   - observation TYPE
-  ytime <- NULL                                                                # [p] CHAR, observation timestamp
-  ygrd  <- NULL                                                                # [p] LOGICAL, TRUE for variables mapped from gridded variables QC
+  p     <- 0                                                                    # [1]   - number of observations
+  y     <- NULL                                                                 # [p]   - observation vector
+  ypos  <- NULL                                                                 # [p,2] - geographical positions - [NA,NA] global obs
+  yz    <- NULL                                                                 # [p]   - vertical positions     - [NA]   global obs
+  yKIND <- NULL                                                                 # [p]   - variable KIND
+  yTYPE <- NULL                                                                 # [p]   - observation TYPE
+  ytime <- NULL                                                                 # [p] CHAR, observation timestamp
+  ygrd  <- NULL                                                                 # [p] LOGICAL, TRUE for variables mapped from gridded variables QC
 
-  E     <- NULL                                                                # [n,m]
-  HE    <- NULL                                                                # [p,m]
-  R     <- NULL                                                                # [p,p]
-  H     <- NULL                                                                # [p,n]
+  E     <- NULL                                                                 # [n,m]
+  HE    <- NULL                                                                 # [p,m]
+  R     <- NULL                                                                 # [p,p]
+  H     <- NULL                                                                 # [p,n]
 
   getCooG <- function(G) {
     # get coordinates in a regular lattice as a 2-col matrix
@@ -104,17 +108,17 @@ analyseUG <- function(G=NULL, gLON=NULL, gLAT=NULL, fit, prm, X, yls=NULL, gauDA
   # 1 :: gridded variables <-> satellite observations
 
   if (structG)
-    gpos <- getCooG(G)                                          # horizontal grid center positions
+    gpos <- getCooG(G)                                                          # horizontal grid center positions
   else
-    gpos <- cbind(as.numeric(gLON),as.numeric(gLAT))            # horizontal grid center positions  
+    gpos <- cbind(as.numeric(gLON),as.numeric(gLAT))                            # horizontal grid center positions  
 
   # just for SpatialGraph-based localisation
   if (!is.null(prm$loc_boo)) {
     if (prm$loc_boo && !is.null(prm$loc_distype)) {
-      if (prm$loc_distype == 'SG') {                             # along-network distance calculations
-        prm$sglst    <- list()                                   # information for SpatialGraph-based distance
-        prm$sglst$sg <- readRDS(file.path(dsn,prm$sgf))          # 'SpatialGraph'
-        gposSG       <- readRDS(file.path(dsn,prm$gridSGf))      # precalculated along-network distances for grid nodes
+      if (prm$loc_distype == 'SG') {                                            # along-network distance calculations
+        prm$sglst    <- list()                                                  # information for SpatialGraph-based distance
+        prm$sglst$sg <- readRDS(file.path(dsn,prm$sgf))                         # 'SpatialGraph'
+        gposSG       <- readRDS(file.path(dsn,prm$gridSGf))                     # precalculated along-network distances for grid nodes
       }
     }
   }
@@ -532,9 +536,12 @@ analyseUG <- function(G=NULL, gLON=NULL, gLAT=NULL, fit, prm, X, yls=NULL, gauDA
   if (lite) 
     dxA <- assimilateLite(prm, A[,sm], HA[,sm], dyb, R, debugmode, Kfname)
   else {
-    stop('analyseUG: only assimilateLite() available in this version')
-    #dxA <- assimilate(prm, A[,sm], xpos, xllen, HA[,sm], dyb, ypos, R, debugmode, Kfname,
-    #                 mpi=mpi, sglst=prm$sglst)
+    if (!exists('assimilate')) {
+      cat('analyseUG: WARNING:: switch to assimilateLite(), as assimilate() not available in this version')
+      assimilate <- assimilateLite
+    }
+    dxA <- assimilate(prm, A[,sm], HA[,sm], dyb, R, debugmode, Kfname,
+                      xpos, xllen, ypos, mpi=mpi, sglst=prm$sglst)
   }
   cat('analyse:: end assimilation   |',as.character(Sys.time()),'\n')
 

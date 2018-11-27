@@ -1,4 +1,4 @@
-exportPattern("^[[:alpha:]]+")
+#exportPattern("^[[:alpha:]]+")
 
 import(Matrix, except=tail)
 import(
@@ -10,8 +10,34 @@ importFrom("interp",    "interp")
 importFrom("expm",      "sqrtm")
 importFrom("MASS",      "mvrnorm")
 importFrom("methods",   "as")
-importFrom("SpatialGraph", "pointsToLines", "pointOnLine")
+importFrom("SpatialGraph", "pointsToLines", "pointOnLine", "SpatialGraph")
 importFrom("splancs",   "n2dist")
 importFrom("stats",      "approx", "coef", "lm", "qnorm", "quantile",
            "rnorm", "runif", "sd", "shapiro.test", "var")
 importFrom("utils",     "installed.packages", "tail")
+
+export(
+        analyseUG,
+        anamFit,
+        approxM,
+        assimilateLite,
+        blkdiag,
+        calcHnn,
+        datePOSIXct,
+        deg2gms,
+        getEsensitivity,
+        getThetaG,
+        getThetaWLM,
+        gms2deg,
+        hypot,
+        interpEarth,
+        linearScale,
+        mcEnsemble,
+        nnGpos,
+        orthoEnsemble,
+        qpow35,
+        sqrtm_rs,
+        subsampleX,
+        tlag,
+        wSigma
+      )

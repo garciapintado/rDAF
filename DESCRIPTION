@@ -7,7 +7,6 @@ Imports: expm, interp, MASS, Matrix, methods, SpatialGraph,
          splancs, stats, truncnorm, tseries, utils
 Author: Javier Garcia-Pintado
 Maintainer: Javier Garcia-Pintado <jgarciapintado@marum.de>
-Description: Framework for R ensemble data assimilation
-             and finite difference sensitivity Kalman smoothers.
+Description: Framework for R ensemble and sensitivity-based data assimilation.
 License: GPL (>=2)
 URL: https://github.com/garciapintado/rDAF

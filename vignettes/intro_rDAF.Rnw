@@ -33,12 +33,13 @@ The \pkg{rDAF} package provides functions to support ensemble assimilation proto
 In the present version, only the core assimilation function {\tt assimilateLite} is provided, which conducts a global ensemble Kalman filter (EnKF).
 The specific scheme is an unbiased Ensemble Tranform Kalman Filter (ETKF).
 
-A more developed version of \pkg{rDAF}, whose documentation is under preparation, includes  the function {\tt assimilate}, as well as functions which it depends on. 
-This function includes additional features as localization and inflation, generation of autocorrelated noise fields to simulate model error, etc. Further, it is parallelised
-via the package \pkg{rmpi}, a wrapper to MPI libraries. In the interim time that the documentation for {\tt assimilate} and the related functions is under preparation, please contact the author for (undocumented) requests. 
+A more developed version of \pkg{rDAF} under preparation includes additional features as localization and inflation, generation of autocorrelated noise fields to simulate model error, etc. Further, it is parallelised
+via the package \pkg{rmpi}, a wrapper to MPI libraries. In the interim time that the updated version is not publicly available, the additional options are available from the additional package \pkg{rPDAF}, available on direct request to the author (jgarciapintado@marum.de). As soon as full testing is done, \pkg{rPDAF} will be merged with \pkg{rDAF}.
 
-The function {\tt analyseUG} prepares the input for both {\tt assimilateLite} and {\tt assimilate}, and I have considered that the detailed 
-description of some structured input needed for {\tt analyseUG} would be better placed in this additional document than within the specific function documentation. 
+It is noted that \pkg{rDAF}/\pkg{rPDAF} are not designed for efficiency but as tools to test assimilation ideas. They has been used, though, with relatively big models. One example is the \pkg{rdafCESM} package, available on https://github.com/garciapintado/rdafCESM, which is an interface that has been used with the climate model CESM but with relatively low-dimensional observation datasets for past climate analysis. The assimilation with \pkg{rdafCESM} is made posssible by conducting the analysis iteratively for each horizontal model layer of the state variables (by loading the data in a loop from the netCDF history files). Nevertheless, for already-developed high-efficient assimilation tools, I would recommend to resort to compiled optimised alternatives. One possibility is PDAF (the Parallel Data Assimilation Framework, developed in Fortran90 with some features from Fortran 2003), available at http://pdaf.awi.de, from which actually rPDAF borrows the name (but not the code). 
+
+In \pkg{rDAF}, the function {\tt analyseUG} prepares the input for both {\tt assimilateLite} and {\tt assimilate} (available only in \pkg{rPDAF} by now), and I have considered that the detailed description of some structured input needed for {\tt analyseUG} would be better placed in this additional document than within the specific function documentation. 
+
 Thus, this document describes specific structured input that is needed by {\tt analyseUG}.
 
 Package \pkg{rDAF} is loaded by 
@@ -264,6 +265,41 @@ theta :: OPT,                          LIST, used just for finite difference sen
       $P                                  [np,np] background parameter error covariance matrix 
 \end{verbatim}
 \end{small}
+
+\section{Output for sensitivity analysis}
+A number of functions are on development, which for homogeneization also need to have standard structures. One is for sensitivity analysis. Assuming the list to gather sensitivity analysis is names \code{ol}. The structure is as
+\begin{small}
+\begin{verbatim}
+ol                           unnamed LIST
+ol[[sim]]                    LIST
+ol[[sim]]$CASE_0             CHARACTER :: base case name, without any ensemble index (.nnn)
+         $MCgpar             REAL, [n_theta,m] :: ensemble of control variables
+         $inland             SpatialPolygonsDataFrame:: plotting support. land-sea mask. Longitudes in [-180,180]
+         $inland360          SpatialPolygonsDataFrame:: plotting support. land-sea mask. Longitudes in [180, 540] -> [0,360] plots
+         [[com]]             LIST, where com is one of ['atm','ocn','lnd','ice']
+           [[timelab]]       LIST, where 'timelab' is a unique identifier of the data assimilation window time
+             [[xKIND]]       LIST, where 'xKIND' is the variable identifier
+               $att
+               $coordinates  CHARACTER, coordinate names, taken from the 'coordinates' slot in the netCDF file
+               $cor          REAL, [n,n_theta]:: correlation matrix
+               $cov          REAL, [n,n_theta]:: covariance matrix   
+               $dim          LIST :: dimensional information, taken from the 'dim' slot in the netCDF file
+               $G            REAL, [n,n_theta]:: sensitivity matrix   
+               $ogrid        gmeta6:: goal grid for plotting. Plotting tools should interpolate matrices into this            
+               $value        LIST, [m]:: variable values
+                     [[im]]  REAL, [nlon,nlat,z_t]. Actually follows names(ol2[[1]]$ocn[[1]][[var]]$dim)
+               $...          any other supporting variable for plotting. E.g. REGION_MASK, or grid information
+\end{verbatim}
+
+An old structure has at the same level in the \code{sim} list diferent elements for ensemble results and sensitivities, as:
+\begin{verbatim}
+ol[[$sim]][[var]]                  [n,m] matrix
+          [[var.Ge]]               [n,n_theta], where n_theta: number of control variables:: sensitivity matrix
+          [[var.cor]]              [n,n_theta] :: correlation matrix
+          [[var.cov]]              [n,n_theta] :: covariance matrix 
+\end{verbatim}
+\end{small}
+
 \section{Limitations and strategy for high-dimensional models}
 This software has been used with a a range of models, the biggest one being the Community Earth System Model (CESM). The strategy to conduct
 assimilation with CESM has been to analyse variable by variable by iteratively loading each variable of interest in the netCDF history files into the R workspace. Depending on the computer, one can also load layer by layer, or just the specific layers of interest for an analysis.

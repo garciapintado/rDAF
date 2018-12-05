@@ -3,7 +3,7 @@ Version: 1.0-0
 Type: Package
 Title: R Data Assimilation Framework
 Date: 2018-11-27
-Imports: expm, interp, MASS, Matrix, methods, SpatialGraph, 
+Imports: expm, interp, MASS, Matrix, methods, 
          splancs, stats, truncnorm, tseries, utils
 Author: Javier Garcia-Pintado
 Maintainer: Javier Garcia-Pintado <jgarciapintado@marum.de>

@@ -15,12 +15,12 @@ anamFit <- function(x, extrapolate=TRUE, ndisc=101, useRGeostats=FALSE, xlim=c(-
 
   if (xsde == 0)
     return(NULL)
-  if (!('RGeostats' %in% installed.packages())) {
+  if (!("package:RGeostats" %in% search())) {
     if (useRGeostats) {
-      cat("anamFit: RGeostats is not installed. useRGeostats forced to FALSE\n")
+      cat("anamFit: RGeostats is not installed and loaded. useRGeostats forced to FALSE\n")
       useRGeostats <- FALSE
     }
-    db.create <- function(x){x}
+    db.create <- function(x){x}                                                 # foo
     anam.fit <- function(x,ndisc) {
       usup <- seq(0,1,length=ndisc)
       x2U  <- cbind(quantile(x, probs=usup, na.rm=TRUE, names=FALSE, type=8),
@@ -40,7 +40,6 @@ anamFit <- function(x, extrapolate=TRUE, ndisc=101, useRGeostats=FALSE, xlim=c(-
   } # end local db.create() and anam.fit()
   
   if (useRGeostats) {                                     # importFrom("RGeostats","db.create","anam.fit")  
-    #require('RGeostats')
     x0 <- min(0, x, na.rm=TRUE)
     db   <- db.create(list(x1=1:n))                                # RGeostat::db.create
     db@items$x1 <- x - x0                                          # empirical-type anamorphosis in RGeostats does not allow for negative numbers

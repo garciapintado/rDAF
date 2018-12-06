@@ -29,10 +29,10 @@ calcHnn <- function(G=NULL, gLON=NULL, gLAT=NULL, pos) {
 
   if (!is.null(G)) {
     ng  <- G$cells                                                              # cells in each horizontal grid
-    Gid <- nnGpos(G,pos)                                                        # in hydrosim
+    Gid <- nnGpos(G,pos)
   } else {
     ng  <- length(gLON)
-    Gid <- n2dist(cbind(as.numeric(gLON),as.numeric(gLAT)),pos)$neighs         # in splancs 
+    Gid <- splancs::n2dist(cbind(as.numeric(gLON),as.numeric(gLAT)),pos)$neighs
   }
 
   dgTH <- spMatrix(p,ng,i=1:p,j=Gid,x=rep(1.0,p))           # dgTMatrix

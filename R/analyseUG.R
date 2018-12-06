@@ -52,8 +52,10 @@ analyseUG <- function(G=NULL, gLON=NULL, gLAT=NULL, fit, prm, X, yls=NULL, gauDA
   if (lite)
     mpi <- FALSE
 
-  if (!("package:SpatialGraph" %in% search()))
-    pointsToLines <- function(a,b) {stop('analyseUG: SpatialGraph not loaded')}
+  if (!("package:SpatialGraph" %in% search())) {
+    pointsToLines <- function(a,b) {
+        stop('analyseUG: pointsToLines() not available and requested. Load SpatialGraph package')}
+  }
   
   if (!is.null(G) && !is.null(gLON))
     stop('analyseUG: use just either G [regular grids] or gLON,gLAT [irregular grids] for horizontal grid definition')

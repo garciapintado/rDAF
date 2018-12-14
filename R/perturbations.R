@@ -157,14 +157,14 @@ orthoEnsemble <- function(p, MC, m, MCcons=NULL, sdfac=1.0) {
       sdev <- p[[vnam]][1]*0.5                    # assume cv=0.5 for lognormal variables
 
     
-    if (mperpar == 1) {                           # finite difference approximation
+    if (mperpar == 1) {                           # forward finite difference approximation
        dtheta[i,] <- sdev*sdfac[i]                # sd(c(b,dtheta)) == sdev*sqrt(2)/2
     } else {
-       dtheta[i,] <- rnorm(mperpar, mean=0, sd=sdev*sdfac[i])       
+       dtheta[i,] <- rnorm(mperpar, mean=0, sd=sdev*sdfac[i])
+       dtheta[i,] <- dtheta[i,] - mean(dtheta[i,]) # center [e.g. m_p=2 => central finite differences]. Contraints below may spoil this
     }
-    gpar[[vnam]][vnam,] <- gpar[[vnam]][vnam,] + dtheta[i,]  # perturbed ensemble 
+    gpar[[vnam]][vnam,] <- gpar[[vnam]][vnam,] + dtheta[i,] # perturbed ensemble 
   }
-
 
   # add fix constraints
   for (i in 1:length(thetaNam)) {

@@ -28,6 +28,7 @@ export(
         getThetaG,
         getThetaWLM,
         gms2deg,
+        gridMax,
         hypot,
         interpEarth,
         linearScale,

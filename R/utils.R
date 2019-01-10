@@ -53,6 +53,26 @@ hypot <- function(a,b){
   sqrt(a^2 + b^2)
 } # end function hypot
 
+gridMax <- function(x, y, z, xmsk=rep(TRUE,length(x)), ymsk=rep(TRUE,length(y)), sFUN=max) {
+  ng <- length(x) * length(y)
+  if (length(z) != ng)
+    stop('z length does not match given dimensions')
+  if (length(xmsk) != length(x) && length(ymsk) != length(y))
+    stop('Logical masks do not match given dimensions')
+  if (!is.matrix(z))
+    z <- matrix(z,length(x),length(y))
+  x <- x[xmsk]                                              # block
+  y <- y[ymsk]
+  z <- z[xmsk,ymsk]
+  ind <- which(z == sFUN(z), arr.ind=TRUE)
+  ans <- c(x[ind[1]], y[ind[2]], z[ind[1], ind[2]])
+  names(ans) <- c('x','y','z')
+  return(ans)
+} # end function gridMax()
+
+#fooMax <- matStat(ol[[1]][['MOC']][['1850-01']][,1], lat_aux_grid, moc_z, moc_latmsk, moc_zmsk, sFUN=max)
+
+
 wSigma <- function(sigma, w) {
   # inflates a covariance keeping correlation
   diag(sqrt(w)) %*% sigma %*%  diag(sqrt(w))   

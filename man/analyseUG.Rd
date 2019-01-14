@@ -11,7 +11,7 @@
 }
 \usage{
 analyseUG(G = NULL, gLON = NULL, gLAT = NULL, fit, prm, X, yls = NULL,
-gauDA = NULL, gauTS = NULL, aug = NULL, ana = NULL, dsn = ".", debugmode = TRUE,
+gauDA = NULL, gauTS = NULL, aug = NULL, ana = NULL, dsn = ".", debugmode = FALSE,
 retdy = FALSE, mpi = FALSE, analysis_scn = "a0", theta = NULL, lite=TRUE)
 }
 \arguments{
@@ -22,20 +22,21 @@ retdy = FALSE, mpi = FALSE, analysis_scn = "a0", theta = NULL, lite=TRUE)
   \item{fit}{INTEGER, forecast time index for saved output}
   \item{prm}{LIST, global assimilation parameters}
   \item{X}{LIST, state vector, structured as X[[xKIND]][[timelab]][[im]]}
-  \item{yls}{OPT, LIST,    observation list, structured as yls[[yKIND]][[yTYPE]]$s lists.}
-  \item{gauDA}{OPT, LIST,    y <-> HE matches, to include observations by state-vector augmentation. Augments x and y}
-  \item{gauTS}{OPT, LIST, as gauDA lists, without the $y slot. Augments x, and can be used to obtain a smooth estimate (ETKS) at specific locations/variables in the domain. }
-  \item{aug}{OPT, LIST,    augmentation blocks (e.g.; physical parameters) }
-  \item{ana}{LIST,    analysis parameter for each variable type}
+  \item{yls}{OPT, LIST, observation list, structured as yls[[yKIND]][[yTYPE]]$s lists.}
+  \item{gauDA}{OPT, LIST, y <-> HE matches, to include observations by state-vector augmentation. Augments x and y}
+  \item{gauTS}{OPT, LIST, as gauDA lists, without the $y slot. Augments x, and can be used to obtain a smooth estimate (ETKS) at specific locations/variables in the domain.}
+  \item{aug}{OPT, LIST, augmentation blocks (e.g.; physical parameters) }
+  \item{ana}{LIST, analysis parameter for each variable type}
   \item{dsn}{CHARACTER, output files are stored in the path $dsn/results}
-  \item{debugmode}{OPT, LOGICAL, TRUE}
-  \item{retdy}{OPT, LOGICAL, default FALSE. TRUE for no assimilation, and instead return the innovation vector}
-  \item{mpi}{OPT, LOGICAL, (forced to FALSE in rDAFLite) whether to parallelize the assimilation via MPI}
+  \item{debugmode}{OPT, LOGICAL, defaults to FALSE. TRUE triggers writting files with
+    assimilation details}
+  \item{retdy}{OPT, LOGICAL, defaults to FALSE. TRUE for no assimilation, and instead return the innovation vector}
+  \item{mpi}{OPT, LOGICAL, (forced to FALSE in rDAF) whether to parallelize the assimilation via MPI}
   \item{analysis_scn}{CHARACTER, label added to output file for eventual
     identification of assimilation scenarios}
   \item{theta}{OPT, LIST, required for finite difference sensitivity
     Kalman smoothers [pIKS,pMKS]}
-  \item{lite}{LOGICAL, only TRUE in this version}
+  \item{lite}{LOGICAL, only TRUE is allowed in this version}
 }
 \details{
 A detailed documentation of the arguments to this function is under

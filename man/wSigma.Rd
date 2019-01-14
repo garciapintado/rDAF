@@ -17,8 +17,8 @@ w <- c(1,2,3)
 wP    <- wSigma(P,w)
 
 Dsqi  <- diag(1/sqrt(diag(P)))
-rho   <- Dsqi %*% P %*% Dsqi       # rho
+rho   <- Dsqi \%*\% P \%*\% Dsqi       # rho
 wDsqi <- diag(1/sqrt(diag(wP)))
-wrho  <- wDsqi %*% wP %*% wDsqi   # rho
+wrho  <- wDsqi \%*\% wP \%*\% wDsqi   # rho
 all.equal(rho, wrho)
 }

@@ -30,8 +30,7 @@ University of Bremen, Leobener Str. 8, D-28359 Bremen, Germany.
 \section{Introduction}
 
 The \pkg{rDAF} package provides functions to support ensemble assimilation prototyping within the  \proglang{R} environment.
-In the present version, only the core assimilation function {\tt assimilateLite} is provided, which conducts a global ensemble Kalman filter (EnKF).
-The specific scheme is an unbiased Ensemble Tranform Kalman Filter (ETKF).
+In the present version, only the core assimilation function {\tt assimilateLite} is provided, which conducts a global ensemble Kalman filter (EnKF) (Evensen 1994), and also includes an unbiased Ensemble Tranform Kalman Filter (ETKF) (Ott et al., 2004).
 
 A more developed version of \pkg{rDAF} under preparation includes additional features as localization and inflation, generation of autocorrelated noise fields to simulate model error, etc. Further, it is parallelised
 via the package \pkg{rmpi}, a wrapper to MPI libraries. In the interim time that the updated version is not publicly available, the additional options are available from the additional package \pkg{rPDAF}, available on direct request to the author (jgarciapintado@marum.de). As soon as full testing is done, \pkg{rPDAF} will be merged with \pkg{rDAF}.
@@ -309,24 +308,32 @@ One example of ETKF and finite-difference Kalman smoothers (reproducible with {\
 
 \section*{References}
 \begin{description}
+\item Evensen G.
+Inverse methods and data assimilation in nonlinear ocean models.
+\textit{Physica D: Nonlinear Phenomena} 1994; doi:10.1016/0167-2789(94)90130-9.
+  
 \item Garcia-Pintado J, Paul A.
 Evaluation of Kalman smoother schemes for past climate analysis with
 comprehensive Earth System Models.
-\textit{Geoscientific Model Development} 2018.
+\textit{Geoscientific Model Development} 2018; doi:10.5194/gmd-11-5051-2018.
 
 \item Waller JA, Garc\'ia-Pintado J, Mason DC, Dance SL, Nichols NK.
 Technical note: assessment of observation quality for data assimilation in flood models.
-\textit{Hydrology and Earth System Sciences} 2018; doi: 10.5194/hess-2018-43
+\textit{Hydrology and Earth System Sciences} 2018; doi:10.5194/hess-2018-43.
 
 \item Garc\'ia-Pintado J, Mason DC, Dance SL, Cloke HL, Neal JC, Freer J, Bates PD.
 Satellite-supported flood forecasting in river networks: a real case
 study.
-\textit{Journal of Hydrology} 2015; 523:706--724.
+\textit{Journal of Hydrology} 2015; 523:706--724; doi:10.1016/j.jhydrol.2015.01.084.
 
 \item Garc\'ia-Pintado J, Neal JC, Mason DC, Dance SL, Bates PD.
 Scheduling satellite-based SAR acquisition for sequential assimilation of water level observations into flood modelling.
-\textit{J. Hydrol.\/} 2013; 495:252--266.
+\textit{J. Hydrol.\/} 2013; 495:252--266; doi:10.1016/j.jhydrol.2013.03.050.
 
+\item Ott E, Hunt B, Szunyogh I, Zimin A, Kostelich E, Corazza M, Kalnay E, Patil DJ, Yorke JA.
+A local ensemble Kalman filter for atmospheric data assimilation.
+\textit{Tellus A} 2004; 56(5):415--428; doi:10.1111/j.1600-0870.2004.00076.x.
+  
 \end{description}
 
 \end{document}

@@ -6,7 +6,8 @@
   the globe by use of interp package FOSS implementation of akima's interpolation
 }
 \usage{
-interpEarth(LON, LAT, z, xo, yo, output = 'grid', retnum = TRUE)
+interpEarth(LON, LAT, z, xo, yo, output = 'grid', retnum = TRUE,
+patchwin = 90)
 }
 \arguments{
   \item{LON}{vector of input longitudes in [-180,360]}
@@ -16,7 +17,13 @@ interpEarth(LON, LAT, z, xo, yo, output = 'grid', retnum = TRUE)
   \item{yo}{vector of gridded output latitudes}
   \item{output}{CHARACTER, either 'grid' or 'points'}
   \item{retnum}{FALSE for output as akima's matrix. TRUE for gmeta6 compatible vector. 
-                That is, a numeric vector representing gridded values starting by the upper left corner, and advancing by rows first.} 
+                That is, a numeric vector representing gridded values
+		starting by the upper left corner, and advancing by rows
+		first.}
+  \item{patchwin}{REAL, interpolation in this function is not on the
+    sphere, but works on the globe by recycling longitude bands at both
+    sides. This arguments controls the width of the patchs at both
+    sides.}	      
 }
 \details{
   \code{interpEarth} stacks longitudes bands in input data as approximate continuous

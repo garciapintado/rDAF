@@ -37,8 +37,15 @@ interpEarth <- function(LON, LAT, z, xo, yo, output = 'grid', retnum = TRUE) {
   LONaug <- c(LONaug,LON360[rdid]+360)
   LATaug <- c(LATaug,LAT[rdid])
   zaug   <- c(zaug,zaug[rdid])
-
-  zo <- interp::interp(LONaug, LATaug, zaug, xo=xo360, yo=yo, output=output)$z
+  
+  if (output != 'grid')
+    zo <- interp::interp(LONaug, LATaug, zaug, xo=xo360, yo=yo, output=output)$z
+  else {
+   # if (requireNamespace("akima")) 
+      zo <- akima::interp(LONaug, LATaug, zaug, xo=xo360, yo=yo)$z  # much faster
+   # else
+   #   stop('akima::interp not available')
+  }  
   if (output == 'grid' && retnum)                            # write as numeric from ul corner and advancing by row=TRUE
     zo <- as.numeric(zo[,ncol(zo):1])
   return(zo)

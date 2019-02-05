@@ -6,6 +6,7 @@ import(
   tseries
 )
 
+importFrom("akima",     "interp")
 importFrom("interp",    "interp")
 importFrom("expm",      "sqrtm")
 importFrom("MASS",      "mvrnorm")

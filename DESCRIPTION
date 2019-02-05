@@ -3,7 +3,7 @@ Version: 1.0-0
 Type: Package
 Title: An R Data Assimilation Framework
 Date: 2019-01-10
-Imports: expm, interp, MASS, Matrix, methods, 
+Imports: akima, expm, interp, MASS, Matrix, methods, 
          splancs, stats, truncnorm, tseries, utils
 Author: Javier Garcia-Pintado
 Maintainer: Javier Garcia-Pintado <jgarciapintado@marum.de>

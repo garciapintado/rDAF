@@ -40,6 +40,16 @@ deg2gms <- function(deg) {
  return(ans)
 } # end function deg2gms
 
+getObjects <- function(except) {
+  lnames <- ls(pos=parent.frame(1))
+  lnames <- lnames[!(lnames %in% except)] 
+  x <- list()
+  for (i in 1:length(lnames)) {
+    x[[lnames[i]]] <- get(lnames[i], envir=parent.frame(1))
+  }
+  return(x)
+}
+
 gms2deg <- function(gms) {
  # +++ purpose +++
  # convert degrees minutes and seconds to decimal degrees
@@ -48,10 +58,6 @@ gms2deg <- function(gms) {
  ans <- gms[,1] + gms[,2]/60 + gms[,3]/3600
  return(ans)
 } # end function gms2deg
-
-hypot <- function(a,b){
-  sqrt(a^2 + b^2)
-} # end function hypot
 
 gridMax <- function(x, y, z, xmsk=rep(TRUE,length(x)), ymsk=rep(TRUE,length(y)), sFUN=max) {
   ng <- length(x) * length(y)
@@ -72,6 +78,9 @@ gridMax <- function(x, y, z, xmsk=rep(TRUE,length(x)), ymsk=rep(TRUE,length(y)),
 
 #fooMax <- matStat(ol[[1]][['MOC']][['1850-01']][,1], lat_aux_grid, moc_z, moc_latmsk, moc_zmsk, sFUN=max)
 
+hypot <- function(a,b){
+  sqrt(a^2 + b^2)
+} # end function hypot
 
 wSigma <- function(sigma, w) {
   # inflates a covariance keeping correlation

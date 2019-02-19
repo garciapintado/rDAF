@@ -26,6 +26,7 @@ export(
         datePOSIXct,
         deg2gms,
         getEsensitivity,
+        getObjects,
         getThetaG,
         getThetaWLM,
         gms2deg,
